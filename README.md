@@ -20,9 +20,10 @@
 - openpyxl
 - tabulate
 
-インストール方法：
+### インストール方法：
 ```bash
 pip install matplotlib openpyxl tabulate
+```
 
 ## 追加予定の機能
 ### 1.削除機能
