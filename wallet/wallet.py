@@ -16,16 +16,18 @@ import openpyxl
 import openpyxl.workbook
 from tabulate import tabulate
 
-# フォントを指定
-FONT_PATH = "/System/Library/Fonts/ヒラギノ角ゴシック W6.ttc"
-font_prop = fm.FontProperties(fname=FONT_PATH)
+# 利用可能なフォント一覧から日本語対応フォントを探す
+# グラフ用
+available_fonts = [f.name for f in fm.fontManager.ttflist]
+japanese_fonts = [f for f in available_fonts if "Gothic" in f or "Mincho" in f]
 
-# システム内のフォント一覧を表示
-plt.rcParams["font.family"] = font_prop.get_name()
+if japanese_fonts:
+    plt.rcParams["font.family"] = japanese_fonts[0]  # 最初に見つかった日本語フォントを使用
+else:
+    print("日本語フォントが見つかりません。デフォルトのフォントを使用します。")
+
 
 # 入力機能
-
-
 def input_date():
     """日付入力の関数"""
     while True:
@@ -91,6 +93,7 @@ def save_to_csv(transaction_list, filename="wallet_data.csv"):
         writer = csv.DictWriter(file, fieldnames=["日付", "カテゴリ", "金額"])
         writer.writeheader()  # ヘッダーを書き込む
         writer.writerows(transaction_list)  # 収支データを書き込む
+        print(f"データをCSVとして({filename})に保存しました。")
 
 # CSV読み込み機能
 
@@ -189,7 +192,10 @@ def save_to_excel(transaction_list, filename="wallet_data.xlsx"):
         for row in transaction_list:
             ws.append([row["日付"], row["カテゴリ"], float(row["金額"])])
             dc += 1
+    except Exception as e:  # pylint: disable=broad-exception-caught
+        print(f"エクセルを作成中にエラーが発生しました。:{e}")
 
+    try:
         # ファイルを保存する。
         wb.save(filename)
         print(f"データをExcelファイル({filename})に保存しました。")
@@ -197,6 +203,7 @@ def save_to_excel(transaction_list, filename="wallet_data.xlsx"):
 
     except Exception as e:  # pylint: disable=broad-exception-caught
         print(f"エクセルへ保存中にエラーが発生しました。:{e}")
+
 
 # 登録した収支を保存するリスト
 # 保存されたCSVがある場合は、ファイルから読み込み
